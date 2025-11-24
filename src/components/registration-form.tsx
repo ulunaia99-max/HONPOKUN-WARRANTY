@@ -226,16 +226,6 @@ export function RegistrationForm() {
       });
       return;
     }
-    // 管理番号と電話番号の組み合わせを確認
-    const phoneDigits = formState.phone.replace(/\D/g, "");
-    const checkResult = await checkManagementId(formState.managementId, formState.phone);
-    if (!checkResult.valid) {
-      setMessage({
-        type: "error",
-        text: checkResult.message || "管理番号と電話番号の組み合わせが正しくありません。",
-      });
-      return;
-    }
     if (!formState.termsAgreed) {
       setMessage({
         type: "error",
@@ -245,6 +235,17 @@ export function RegistrationForm() {
     }
     setIsSubmitting(true);
     setMessage(undefined);
+    
+    // 管理番号の存在確認（未登録の場合は電話番号検証なし）
+    const checkResult = await checkManagementId(formState.managementId);
+    if (!checkResult.valid) {
+      setMessage({
+        type: "error",
+        text: checkResult.message || "管理番号の確認に失敗しました。",
+      });
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       const response = await fetch("/api/register", {
