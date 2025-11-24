@@ -25,7 +25,25 @@ export async function POST(request: Request) {
     const { managementId } = parsed.data;
 
     // 管理番号でレコードを検索
-    const record = await findRecordByManagementId(managementId);
+    let record;
+    try {
+      record = await findRecordByManagementId(managementId);
+    } catch (error) {
+      console.error("findRecordByManagementId error:", error);
+      const isDev = process.env.NODE_ENV === "development";
+      const errorMessage = error instanceof Error 
+        ? (isDev ? `管理番号の検索エラー: ${error.message}` : "管理番号の確認中にエラーが発生しました。")
+        : "管理番号の確認中にエラーが発生しました。";
+      
+      return NextResponse.json(
+        {
+          ok: false,
+          message: errorMessage,
+          ...(isDev && error instanceof Error && { details: error.message }),
+        },
+        { status: 500 },
+      );
+    }
 
     if (!record) {
       return NextResponse.json(

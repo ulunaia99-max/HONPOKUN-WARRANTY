@@ -88,9 +88,18 @@ async function findRecordByManagementId(
 
   const data = await response.json();
   if (data.records && data.records.length > 0) {
+    const record = data.records[0];
+    // レコードIDの取得方法を確認（$id.value または $id）
+    const recordId = record.$id?.value || record.$id || record.レコード番号?.value || record.レコード番号;
+    
+    if (!recordId) {
+      console.error("Record ID not found in response:", record);
+      throw new Error("レコードIDの取得に失敗しました");
+    }
+    
     return {
-      id: data.records[0].$id.value,
-      record: data.records[0],
+      id: String(recordId),
+      record: record,
     };
   }
 
