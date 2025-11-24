@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 
 export default function StatusPage() {
   const router = useRouter();
-  const [managementId, setManagementId] = useState("");
+  const [managementId, setManagementId] = useState("URC");
   const [phoneLast4, setPhoneLast4] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -82,14 +82,33 @@ export default function StatusPage() {
                 <label className="text-xs sm:text-sm font-medium text-slate-700 block mb-1.5">
                   管理番号
                 </label>
-                <input
-                  type="text"
-                  value={managementId}
-                  onChange={(e) => setManagementId(e.target.value.toUpperCase())}
-                  placeholder="URC1234567"
-                  required
-                  className="w-full rounded-xl sm:rounded-2xl border border-slate-200 bg-white/70 px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 min-h-[44px] uppercase"
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={managementId}
+                    onChange={(e) => {
+                      const value = e.target.value.toUpperCase();
+                      // URCで始まるように強制、URCを削除できないようにする
+                      if (value.startsWith("URC")) {
+                        setManagementId(value);
+                      } else if (value.length < 3) {
+                        setManagementId("URC");
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      // バックスペースやDeleteでURCを削除できないようにする
+                      if ((e.key === "Backspace" || e.key === "Delete") && managementId.length <= 3) {
+                        e.preventDefault();
+                      }
+                    }}
+                    placeholder="URC1234567"
+                    required
+                    className="w-full rounded-xl sm:rounded-2xl border border-slate-200 bg-white/70 px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 min-h-[44px] uppercase"
+                  />
+                </div>
+                <p className="text-[10px] sm:text-xs text-slate-500 mt-1.5">
+                  同梱書類記載の7桁の数字を入力してください
+                </p>
               </div>
               <div>
                 <label className="text-xs sm:text-sm font-medium text-slate-700 block mb-1.5">
@@ -122,7 +141,7 @@ export default function StatusPage() {
               )}
               <button
                 type="submit"
-                disabled={isLoading || !managementId || phoneLast4.length !== 4}
+                disabled={isLoading || !managementId || managementId.length < 10 || phoneLast4.length !== 4}
                 className="w-full bg-primary text-white font-semibold py-3.5 sm:py-4 rounded-xl sm:rounded-2xl shadow-card disabled:opacity-70 disabled:cursor-not-allowed text-sm sm:text-base min-h-[48px] touch-manipulation"
               >
                 {isLoading ? "確認中..." : "登録情報を確認する"}
@@ -130,13 +149,21 @@ export default function StatusPage() {
             </form>
           </div>
 
-          <div className="text-center pt-2">
+          <div className="space-y-3">
+            <div className="text-center">
+              <Link
+                href="/terms.html"
+                target="_blank"
+                className="text-xs sm:text-sm text-primary hover:underline inline-flex items-center gap-1"
+              >
+                安心保証 ご利用規約を確認する
+              </Link>
+            </div>
             <Link
-              href="/terms.html"
-              target="_blank"
-              className="text-xs sm:text-sm text-primary hover:underline inline-flex items-center gap-1"
+              href="/status"
+              className="block w-full rounded-xl sm:rounded-2xl border border-primary/50 bg-white px-4 py-2.5 sm:px-6 sm:py-3 text-center text-xs sm:text-sm font-semibold text-primary hover:bg-primary/5 transition min-h-[44px] flex items-center justify-center touch-manipulation"
             >
-              安心保証 ご利用規約を確認する
+              別の情報を確認する
             </Link>
           </div>
         </div>
