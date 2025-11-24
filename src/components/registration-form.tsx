@@ -110,8 +110,34 @@ export function RegistrationForm() {
     setFormState((prev) => ({ ...prev, [field]: value }));
   };
 
+  // 郵便番号フォーマット関数（123-4567）
+  const formatPostalCode = (value: string): string => {
+    const digits = value.replace(/\D/g, "").slice(0, 7);
+    if (digits.length <= 3) {
+      return digits;
+    }
+    return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  };
+
+  // 電話番号フォーマット関数（090-1234-5678 または 03-1234-5678）
+  const formatPhoneNumber = (value: string): string => {
+    const digits = value.replace(/\D/g, "");
+    if (digits.length <= 3) {
+      return digits;
+    } else if (digits.length <= 7) {
+      return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+    } else if (digits.length <= 10) {
+      // 固定電話（03-1234-5678）
+      return `${digits.slice(0, 2)}-${digits.slice(2, 6)}-${digits.slice(6)}`;
+    } else {
+      // 携帯電話（090-1234-5678）
+      return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7, 11)}`;
+    }
+  };
+
   const handlePostalLookup = async () => {
-    if (!formState.postalCode || formState.postalCode.replace(/\D/g, "").length < 7) {
+    const digits = formState.postalCode.replace(/\D/g, "");
+    if (!digits || digits.length < 7) {
       setMessage({
         type: "error",
         text: "郵便番号（7桁）を入力してからボタンを押してください。",
@@ -122,9 +148,8 @@ export function RegistrationForm() {
     setIsAddressLoading(true);
     setMessage(undefined);
     try {
-      const zipcode = formState.postalCode.replace(/\D/g, "");
       const res = await fetch(
-        `https://zipcloud.ibsnet.co.jp/api/search?zipcode=${encodeURIComponent(zipcode)}`,
+        `https://zipcloud.ibsnet.co.jp/api/search?zipcode=${encodeURIComponent(digits)}`,
       );
       const data = await res.json();
       if (data?.results?.[0]) {
@@ -185,10 +210,16 @@ export function RegistrationForm() {
     setMessage(undefined);
 
     try {
+      // ハイフンを除去して送信
+      const payload = {
+        ...formState,
+        phone: formState.phone.replace(/\D/g, ""),
+        postalCode: formState.postalCode.replace(/\D/g, ""),
+      };
       const response = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formState),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
@@ -222,11 +253,11 @@ export function RegistrationForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="card-blur shadow-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 space-y-5 sm:space-y-6 max-w-4xl mx-auto"
+      className="card-blur shadow-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 space-y-6 max-w-4xl mx-auto"
     >
-      <div className="space-y-5">
+      <div className="space-y-6">
         <div className="flex flex-col gap-4 rounded-2xl sm:rounded-3xl bg-white/90 p-4 sm:p-5 shadow-card sm:flex-row sm:items-center">
-          <div className="flex items-center gap-3 sm:gap-5">
+          <div className="flex items-center gap-3 sm:gap-4">
             <div className="relative h-20 w-20 sm:h-28 sm:w-28 flex-shrink-0 rounded-2xl sm:rounded-3xl bg-white p-2 sm:p-3 shadow-card overflow-hidden">
               <Image
                 src="/logo-official.png"
@@ -251,7 +282,7 @@ export function RegistrationForm() {
           </div>
           <div className="rounded-xl sm:rounded-2xl bg-soft px-3 py-2.5 sm:px-4 sm:py-3 text-xs sm:text-sm text-slate-600 sm:ml-auto">
             <p className="font-semibold text-primary">こんな方におすすめ</p>
-            <ul className="mt-1.5 sm:mt-2 list-disc pl-4 space-y-0.5 sm:space-y-1 text-[10px] sm:text-xs text-slate-600">
+            <ul className="mt-2 list-disc pl-4 space-y-1 text-[10px] sm:text-xs text-slate-600">
               <li>購入後も手厚い修理サポートが欲しい</li>
               <li>他PCの修理や相談もまとめて任せたい</li>
               <li>LINEだけで全て完結させたい</li>
@@ -261,7 +292,7 @@ export function RegistrationForm() {
 
         <div className="space-y-4 rounded-2xl sm:rounded-3xl bg-white/95 p-4 sm:p-5 shadow-card">
           <p className="text-xs sm:text-sm font-semibold text-primary">保証登録で嬉しい内容が満載！</p>
-          <div className="grid gap-3 sm:gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-3">
             {perkCards.map((perk) => (
               <div
                 key={perk.title}
@@ -269,18 +300,18 @@ export function RegistrationForm() {
               >
                 <span className="text-xl sm:text-2xl">{perk.icon}</span>
                 <p className="text-xs sm:text-sm font-bold text-slate-800">{perk.title}</p>
-                <p className="text-[11px] sm:text-xs text-slate-600 leading-relaxed">{perk.description}</p>
+                <p className="text-xs text-slate-600 leading-relaxed">{perk.description}</p>
               </div>
             ))}
           </div>
           <div className="rounded-xl sm:rounded-2xl border border-soft bg-gradient-to-r from-soft to-white p-3 sm:p-4">
             <p className="text-xs sm:text-sm font-bold text-slate-800">修理事例と他社との比較</p>
-            <div className="mt-2 sm:mt-3 grid gap-2 sm:gap-3 sm:grid-cols-3">
+            <div className="mt-3 grid gap-3 sm:grid-cols-3">
               {repairComparisons.map((item) => (
-                <div key={item.title} className="rounded-xl sm:rounded-2xl bg-white px-2.5 py-2.5 sm:px-3 sm:py-3 text-[10px] sm:text-xs shadow-card">
+                <div key={item.title} className="rounded-xl sm:rounded-2xl bg-white px-3 py-3 text-xs shadow-card">
                   <p className="font-bold text-slate-800">{item.title}</p>
                   <p className="text-slate-600">{item.cause}</p>
-                  <p className="mt-1.5 sm:mt-2 text-primary font-semibold">{item.ours}</p>
+                  <p className="mt-2 text-primary font-semibold">{item.ours}</p>
                   <p className="text-slate-500">{item.others}</p>
                 </div>
               ))}
@@ -320,10 +351,11 @@ export function RegistrationForm() {
         />
         <InputField
           label="電話番号"
-          placeholder="09012345678"
+          placeholder="090-1234-5678"
           value={formState.phone}
-          onChange={(value) => updateField("phone", value)}
+          onChange={(value) => updateField("phone", formatPhoneNumber(value))}
           required
+          inputMode="tel"
         />
       </div>
 
@@ -348,10 +380,11 @@ export function RegistrationForm() {
         <div className="space-y-2">
           <InputField
             label="郵便番号"
-            placeholder="1000001"
+            placeholder="100-0001"
             value={formState.postalCode}
-            onChange={(value) => updateField("postalCode", value)}
+            onChange={(value) => updateField("postalCode", formatPostalCode(value))}
             required
+            inputMode="numeric"
           />
           <button
             type="button"
@@ -373,7 +406,7 @@ export function RegistrationForm() {
         </div>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-4">
         <div className="flex items-center justify-between">
           <p className="text-sm font-semibold text-slate-700">
             保証プランを選択（任意）
@@ -382,7 +415,7 @@ export function RegistrationForm() {
             ※お選びの内容に合わせて保証期間が決まります
           </span>
         </div>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2">
           {planOptions.map((plan) => (
             <PlanCard
               key={plan.id}
@@ -456,20 +489,21 @@ function InputField({
   type = "text",
 }: InputFieldProps) {
   return (
-    <div className="text-xs sm:text-sm font-medium text-slate-700 space-y-1.5">
-      <label className="flex flex-col space-y-1.5">
+    <div className="space-y-1.5">
+      <label className="block text-xs sm:text-sm font-medium text-slate-700">
         {label}
-        <input
-          type={type}
-          required={required}
-          value={value}
-          inputMode={inputMode}
-          placeholder={placeholder}
-          onChange={(event) => onChange(event.target.value)}
-          className="w-full rounded-xl sm:rounded-2xl border border-slate-200 bg-white/70 px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 min-h-[44px]"
-        />
+        {required && <span className="ml-1 text-red-500">*</span>}
       </label>
-      {helper && <p className="text-[10px] sm:text-xs leading-relaxed">{helper}</p>}
+      <input
+        type={type}
+        required={required}
+        value={value}
+        inputMode={inputMode}
+        placeholder={placeholder}
+        onChange={(event) => onChange(event.target.value)}
+        className="w-full rounded-xl sm:rounded-2xl border border-slate-200 bg-white/70 px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 min-h-[44px] transition"
+      />
+      {helper && <p className="text-[10px] sm:text-xs text-slate-500 leading-relaxed">{helper}</p>}
     </div>
   );
 }
