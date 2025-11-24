@@ -18,6 +18,14 @@ const FIELD_CODES = {
   fullName: "name_1",
   postalCode: "文字列__1行__5",
   address: "address_1",
+  maker: "maker_1",
+  model: "model_1",
+  serial: "serial_1",
+  purchaseSite: "ドロップダウン_36",
+  purchaseDate: "hanbai_1",
+  warrantyPeriod: "数値",
+  warrantyPlan: "ラジオボタン_0",
+  warrantyEndDate: "日付_0",
 } as const;
 
 const planLabelMap: Record<WarrantyPlan, string> = {
@@ -164,8 +172,85 @@ export async function createKintoneRecord(
       throw new Error(`kintoneの更新に失敗しました: ${message}`);
     }
 
-    return response.json();
+  return response.json();
+}
+
+/**
+ * 管理番号と電話番号の下4桁で認証し、登録情報を取得
+ */
+export async function getWarrantyStatus(
+  managementId: string,
+  phoneLast4: string,
+): Promise<{
+  success: boolean;
+  data?: any;
+  message?: string;
+  needsRegistration?: boolean;
+}> {
+  const domain = process.env.KINTONE_DOMAIN;
+  const appId = process.env.KINTONE_APP_ID;
+  const apiToken = process.env.KINTONE_API_TOKEN;
+  const mockMode = process.env.KINTONE_MOCK_MODE === "true";
+
+  // モックモード
+  if (mockMode || !domain || !appId || !apiToken) {
+    return {
+      success: false,
+      message: "システム設定が完了していません",
+    };
   }
+
+  // 管理番号で検索
+  const record = await findRecordByManagementId(managementId);
+
+  if (!record) {
+    return {
+      success: false,
+      message: "該当の管理番号は見当たりません。",
+    };
+  }
+
+  const phone = record.record[FIELD_CODES.phone]?.value || "";
+  const fullName = record.record[FIELD_CODES.fullName]?.value || "";
+
+  // 氏名や電話番号が未入力の場合は登録を促す
+  if (!fullName || !phone) {
+    return {
+      success: false,
+      message: "この管理番号はまだ登録が完了していません。保証登録フォームから登録をお願いします。",
+      needsRegistration: true,
+    };
+  }
+
+  // 電話番号の下4桁を確認
+  const phoneLast4Digits = phone.slice(-4);
+  if (phoneLast4Digits !== phoneLast4) {
+    return {
+      success: false,
+      message: "管理番号と電話番号が一致しません。",
+    };
+  }
+
+  // 認証成功 - 登録情報を返す
+  return {
+    success: true,
+    data: {
+      managementId: record.record[FIELD_CODES.managementId]?.value || "",
+      fullName: fullName,
+      phone: phone,
+      postalCode: record.record[FIELD_CODES.postalCode]?.value || "",
+      address: record.record[FIELD_CODES.address]?.value || "",
+      maker: record.record[FIELD_CODES.maker]?.value || "",
+      model: record.record[FIELD_CODES.model]?.value || "",
+      serial: record.record[FIELD_CODES.serial]?.value || "",
+      purchaseSite: record.record[FIELD_CODES.purchaseSite]?.value || "",
+      purchaseDate: record.record[FIELD_CODES.purchaseDate]?.value || "",
+      warrantyPeriod: record.record[FIELD_CODES.warrantyPeriod]?.value || "",
+      warrantyPlan: record.record[FIELD_CODES.warrantyPlan]?.value || "",
+      warrantyEndDate: record.record[FIELD_CODES.warrantyEndDate]?.value || "",
+    },
+  };
+}
 
   // 管理番号が存在しない場合はエラー
   throw new Error("該当の管理番号は見当たりません。");
