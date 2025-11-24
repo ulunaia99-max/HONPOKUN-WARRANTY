@@ -65,8 +65,25 @@ async function findRecordByManagementId(
   );
 
   if (!response.ok) {
-    const message = await response.text();
-    throw new Error(`kintoneの検索に失敗しました: ${message}`);
+    const errorText = await response.text();
+    let errorMessage = `kintoneの検索に失敗しました`;
+    
+    try {
+      const errorData = JSON.parse(errorText);
+      if (errorData.message) {
+        errorMessage = `kintoneの検索に失敗しました: ${errorData.message}`;
+      }
+    } catch {
+      errorMessage = `kintoneの検索に失敗しました: ${errorText}`;
+    }
+    
+    console.error("Kintone search error:", {
+      status: response.status,
+      statusText: response.statusText,
+      error: errorText,
+    });
+    
+    throw new Error(errorMessage);
   }
 
   const data = await response.json();
