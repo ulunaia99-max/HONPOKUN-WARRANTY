@@ -7,7 +7,7 @@ import Link from "next/link";
 type RegistrationData = {
   managementId: string;
   fullName: string;
-  passphrase: string;
+  furigana: string;
   postalCode: string;
   address: string;
   phone: string;
@@ -119,9 +119,9 @@ export default function RegisteredPage() {
                 </p>
               </div>
               <div className="rounded-xl sm:rounded-2xl bg-white/80 p-3 sm:p-4 border border-slate-200">
-                <p className="text-[10px] sm:text-xs font-semibold text-slate-500">合言葉</p>
+                <p className="text-[10px] sm:text-xs font-semibold text-slate-500">氏名（フリガナ）</p>
                 <p className="text-sm sm:text-base font-bold text-slate-800 mt-1 break-words">
-                  {data.passphrase}
+                  {data.furigana}
                 </p>
               </div>
               <div className="rounded-xl sm:rounded-2xl bg-white/80 p-3 sm:p-4 border border-slate-200 sm:col-span-2">

@@ -10,7 +10,7 @@ const payloadSchema = z.object({
     .string()
     .regex(/^URC\d{7}$/, "管理番号はURCに続けて7桁の数字で入力してください"),
   fullName: z.string().min(1, "氏名を入力してください"),
-  passphrase: z.string().min(1, "合言葉を入力してください"),
+  furigana: z.string().min(1, "フリガナを入力してください"),
   postalCode: z.string().min(7, "郵便番号を入力してください"),
   address: z.string().min(1, "住所を入力してください"),
   phone: z.string().min(10, "電話番号を入力してください"),

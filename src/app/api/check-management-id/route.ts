@@ -57,14 +57,11 @@ export async function POST(request: Request) {
       );
     }
 
-    // 管理番号は存在するが未登録の場合、合言葉を返す
-    const passphrase = record.record["paycard_0"]?.value || "";
-    
+    // 管理番号は存在するが未登録の場合、登録可能
     return NextResponse.json(
       {
         ok: true,
         message: "管理番号の確認が完了しました。",
-        passphrase: passphrase,
       },
       { status: 200 },
     );

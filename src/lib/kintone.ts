@@ -3,7 +3,7 @@ export type WarrantyPlan = "standard" | "campaign" | "m" | "s";
 export type WarrantyRegistrationPayload = {
   managementId: string;
   fullName: string;
-  passphrase: string;
+  furigana: string;
   postalCode: string;
   address: string;
   phone: string;
@@ -16,7 +16,7 @@ const FIELD_CODES = {
   managementId: "文字列__1行__14",
   phone: "文字列__1行__4",
   fullName: "name_1",
-  passphrase: "paycard_0",
+  fullNameFurigana: "furigana",
   postalCode: "文字列__1行__5",
   address: "address_1",
   maker: "maker_1",
@@ -154,7 +154,7 @@ export async function createKintoneRecord(
       record: {
         [FIELD_CODES.phone]: { value: payload.phone },
         [FIELD_CODES.fullName]: { value: payload.fullName },
-        [FIELD_CODES.passphrase]: { value: payload.passphrase },
+        [FIELD_CODES.fullNameFurigana]: { value: payload.furigana },
         [FIELD_CODES.postalCode]: { value: payload.postalCode },
         [FIELD_CODES.address]: { value: payload.address },
       },

@@ -16,7 +16,7 @@ const MANAGEMENT_DIGIT_LENGTH = 7;
 const defaultState: FormState = {
   managementId: MANAGEMENT_PREFIX,
   fullName: "",
-  passphrase: "",
+  furigana: "",
   postalCode: "",
   address: "",
   phone: "",
@@ -106,10 +106,8 @@ export function RegistrationForm() {
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string }>();
   const [isAddressLoading, setIsAddressLoading] = useState(false);
   const [isCheckingManagementId, setIsCheckingManagementId] = useState(false);
-  const [passphraseError, setPassphraseError] = useState<string | null>(null);
-  const [expectedPassphrase, setExpectedPassphrase] = useState<string | null>(null);
 
-  // 管理番号の存在確認と合言葉の取得
+  // 管理番号の存在確認
   const checkManagementId = async (managementId: string) => {
     if (!managementId || managementId.length < 10) {
       return { valid: false, message: "" };
@@ -128,11 +126,6 @@ export function RegistrationForm() {
         return { valid: false, message: data.message || "管理番号の確認に失敗しました。" };
       }
       
-      // 合言葉を取得
-      if (data.passphrase) {
-        setExpectedPassphrase(data.passphrase);
-      }
-      
       return { valid: true, message: "" };
     } catch (error) {
       return { valid: false, message: "管理番号の確認中にエラーが発生しました。" };
@@ -140,30 +133,9 @@ export function RegistrationForm() {
       setIsCheckingManagementId(false);
     }
   };
-  
-  // 合言葉の検証
-  const validatePassphrase = (passphrase: string) => {
-    if (!passphrase) {
-      setPassphraseError(null);
-      return;
-    }
-    
-    // 期待される合言葉と比較
-    if (expectedPassphrase && passphrase !== expectedPassphrase) {
-      setPassphraseError("合言葉が正しくありません。緑の同梱書類に記載の合言葉をご確認ください。");
-      return;
-    }
-    
-    setPassphraseError(null);
-  };
 
   const updateField = (field: keyof FormState, value: string | boolean) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
-    
-    // 合言葉の検証
-    if (field === "passphrase") {
-      validatePassphrase(value as string);
-    }
   };
 
   // 郵便番号フォーマット関数（123-4567）
@@ -276,15 +248,6 @@ export function RegistrationForm() {
       return;
     }
     
-    // 合言葉の検証
-    if (passphraseError) {
-      setMessage({
-        type: "error",
-        text: passphraseError,
-      });
-      setIsSubmitting(false);
-      return;
-    }
 
     try {
       const response = await fetch("/api/register", {
@@ -439,17 +402,11 @@ export function RegistrationForm() {
           required
         />
         <InputField
-          label="合言葉"
-          placeholder="合言葉を入力"
-          value={formState.passphrase}
-          onChange={(value) => updateField("passphrase", value)}
+          label="氏名（フリガナ）"
+          placeholder="ホンポ タロウ"
+          value={formState.furigana}
+          onChange={(value) => updateField("furigana", value)}
           required
-          error={passphraseError}
-          helper={
-            <span className="text-[10px] sm:text-xs text-slate-500 leading-relaxed">
-              緑の同梱書類に記載されている合言葉を入力してください
-            </span>
-          }
         />
       </div>
 
