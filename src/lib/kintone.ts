@@ -87,14 +87,42 @@ async function findRecordByManagementId(
   }
 
   const data = await response.json();
+  
+  // デバッグ用ログ
+  if (process.env.NODE_ENV === "development") {
+    console.log("Kintone API response:", JSON.stringify(data, null, 2));
+  }
+  
   if (data.records && data.records.length > 0) {
     const record = data.records[0];
-    // レコードIDの取得方法を確認（$id.value または $id）
-    const recordId = record.$id?.value || record.$id || record.レコード番号?.value || record.レコード番号;
+    
+    // レコードIDの取得（kintoneのAPIレスポンス構造に応じて）
+    // 通常は $id.value または レコード番号フィールドから取得
+    let recordId: string | undefined;
+    
+    if (record.$id) {
+      recordId = record.$id.value || record.$id;
+    } else if (record.レコード番号) {
+      recordId = record.レコード番号.value || record.レコード番号;
+    } else {
+      // レコード番号フィールドを探す
+      const recordNumberField = Object.keys(record).find(key => 
+        key.includes("レコード番号") || key === "$id"
+      );
+      if (recordNumberField) {
+        const field = record[recordNumberField];
+        recordId = field?.value || field;
+      }
+    }
     
     if (!recordId) {
-      console.error("Record ID not found in response:", record);
-      throw new Error("レコードIDの取得に失敗しました");
+      console.error("Record ID not found. Available keys:", Object.keys(record));
+      // レコードIDが見つからない場合でも、レコード自体は返す
+      // 更新時には別の方法でIDを取得する必要がある
+      return {
+        id: "unknown",
+        record: record,
+      };
     }
     
     return {
