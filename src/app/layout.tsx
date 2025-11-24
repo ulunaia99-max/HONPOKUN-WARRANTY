@@ -9,9 +9,15 @@ const notoSans = Noto_Sans_JP({
 });
 
 export const metadata: Metadata = {
-  title: "保証登録フォーム｜ほんぽくん",
+  title: "保証登録フォーム｜ほんぽくんPC",
   description:
     "LINE連携でカンタン保証登録。キントーンと連携して保証情報を即時反映します。",
+  openGraph: {
+    title: "保証登録フォーム｜ほんぽくんPC",
+    description:
+      "LINE連携でカンタン保証登録。キントーンと連携して保証情報を即時反映します。",
+    type: "website",
+  },
   viewport: {
     width: "device-width",
     initialScale: 1,
