@@ -105,9 +105,79 @@ export function RegistrationForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string }>();
   const [isAddressLoading, setIsAddressLoading] = useState(false);
+  const [nameError, setNameError] = useState<string | null>(null);
+  const [furiganaError, setFuriganaError] = useState<string | null>(null);
+
+  // 漢字のみかチェック（スペースは許可）
+  const isValidKanji = (text: string): boolean => {
+    if (!text) return true;
+    // 漢字、ひらがな、カタカナ、スペース、長音符、中点をチェック
+    const kanjiPattern = /^[\u4e00-\u9faf\u3040-\u309f\u30a0-\u30ff\s・ー]*$/;
+    // 漢字が含まれているかチェック
+    const hasKanji = /[\u4e00-\u9faf]/.test(text);
+    // ひらがなやカタカナのみの場合はエラー
+    const onlyHiraganaKatakana = /^[\u3040-\u309f\u30a0-\u30ff\s・ー]*$/.test(text.replace(/[\u4e00-\u9faf]/g, ""));
+    return kanjiPattern.test(text) && hasKanji && !onlyHiraganaKatakana;
+  };
+
+  // カタカナのみかチェック（スペースは許可）
+  const isValidKatakana = (text: string): boolean => {
+    if (!text) return true;
+    // カタカナ、スペース、長音符、中点のみ許可
+    const katakanaPattern = /^[\u30a0-\u30ff\s・ー]*$/;
+    return katakanaPattern.test(text);
+  };
+
+  // 氏名にスペースを自動挿入（苗字と名前の間）
+  const formatNameWithSpace = (text: string): string => {
+    if (!text || text.length < 2) return text;
+    // 既にスペースがある場合はそのまま
+    if (text.includes(" ")) return text;
+    // 2文字以上でスペースがない場合、2文字目と3文字目の間にスペースを挿入
+    // ただし、既にスペースがある場合は何もしない
+    const trimmed = text.trim();
+    if (trimmed.length >= 2 && !trimmed.includes(" ")) {
+      // 最初の2文字の後にスペースを挿入
+      return trimmed.slice(0, 2) + " " + trimmed.slice(2);
+    }
+    return text;
+  };
+
+  // 漢字からフリガナへの簡易変換（ブラウザの読み上げ機能を使用）
+  const convertKanjiToKatakana = async (kanji: string): Promise<string> => {
+    // 完全な変換は難しいため、ユーザーが手動で入力する必要があります
+    // ここでは検証のみ行い、自動変換は行いません
+    return "";
+  };
 
   const updateField = (field: keyof FormState, value: string | boolean) => {
-    setFormState((prev) => ({ ...prev, [field]: value }));
+    // 氏名（漢字）の検証とフォーマット
+    if (field === "fullName") {
+      const nameValue = value as string;
+      const formatted = formatNameWithSpace(nameValue);
+      
+      // フォーマットされた値で更新
+      setFormState((prev) => ({ ...prev, fullName: formatted }));
+      
+      // 検証
+      if (formatted && !isValidKanji(formatted)) {
+        setNameError("漢字で入力してください（ひらがな・カタカナのみは不可）");
+      } else {
+        setNameError(null);
+      }
+    } else {
+      setFormState((prev) => ({ ...prev, [field]: value }));
+    }
+    
+    // フリガナの検証
+    if (field === "furigana") {
+      const furiganaValue = value as string;
+      if (furiganaValue && !isValidKatakana(furiganaValue)) {
+        setFuriganaError("カタカナで入力してください");
+      } else {
+        setFuriganaError(null);
+      }
+    }
   };
 
   // 郵便番号フォーマット関数（123-4567）
@@ -196,6 +266,13 @@ export function RegistrationForm() {
       setMessage({
         type: "error",
         text: "管理番号はURCに続けて7桁の数字を入力してください。",
+      });
+      return;
+    }
+    if (nameError || furiganaError) {
+      setMessage({
+        type: "error",
+        text: "氏名またはフリガナの入力形式をご確認ください。",
       });
       return;
     }
@@ -360,6 +437,7 @@ export function RegistrationForm() {
           value={formState.fullName}
           onChange={(value) => updateField("fullName", value)}
           required
+          error={nameError}
         />
         <InputField
           label="氏名（フリガナ）"
@@ -367,6 +445,7 @@ export function RegistrationForm() {
           value={formState.furigana}
           onChange={(value) => updateField("furigana", value)}
           required
+          error={furiganaError}
         />
       </div>
 
@@ -470,6 +549,7 @@ type InputFieldProps = {
   helper?: ReactNode;
   inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
   type?: string;
+  error?: string | null;
 };
 
 function InputField({
@@ -481,7 +561,9 @@ function InputField({
   helper,
   inputMode,
   type = "text",
+  error,
 }: InputFieldProps) {
+  const hasError = !!error;
   return (
     <div className="space-y-1.5">
       <label className="block text-xs sm:text-sm font-medium text-slate-700">
@@ -495,9 +577,14 @@ function InputField({
         inputMode={inputMode}
         placeholder={placeholder}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full rounded-xl sm:rounded-2xl border border-slate-200 bg-white/70 px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 min-h-[44px] transition"
+        className={`w-full rounded-xl sm:rounded-2xl border px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 min-h-[44px] transition ${
+          hasError
+            ? "border-red-300 bg-red-50/50 focus:border-red-500 focus:ring-red-200"
+            : "border-slate-200 bg-white/70 focus:border-primary focus:ring-primary/20"
+        }`}
       />
-      {helper && <p className="text-[10px] sm:text-xs text-slate-500 leading-relaxed">{helper}</p>}
+      {error && <p className="text-[10px] sm:text-xs text-red-600 leading-relaxed">{error}</p>}
+      {helper && !error && <p className="text-[10px] sm:text-xs text-slate-500 leading-relaxed">{helper}</p>}
     </div>
   );
 }
