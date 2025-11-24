@@ -1,12 +1,4 @@
 import type { Metadata } from "next";
-import { Noto_Sans_JP } from "next/font/google";
-import "./globals.css";
-
-const notoSans = Noto_Sans_JP({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-noto",
-});
 
 export const metadata: Metadata = {
   title: "保証登録フォーム｜ほんぽくんのPC",
@@ -20,23 +12,11 @@ export const metadata: Metadata = {
   },
 };
 
-export const viewport = {
-  width: "device-width",
-  initialScale: 1,
-  maximumScale: 5,
-};
-
-export default function RootLayout({
+export default function MainLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
-  return (
-    <html lang="ja">
-      <body className={`${notoSans.variable} font-sans bg-soft min-h-screen`}>
-        {children}
-      </body>
-    </html>
-  );
+}) {
+  return <>{children}</>;
 }
 
