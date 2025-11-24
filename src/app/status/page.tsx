@@ -51,7 +51,15 @@ export default function StatusPage() {
   };
 
   return (
-    <main className="hero-gradient min-h-screen">
+    <main className="hero-gradient min-h-screen relative">
+      {/* 新規保証登録ボタン（右上隅） */}
+      <Link
+        href="/"
+        className="fixed top-4 right-4 z-10 rounded-lg bg-white/90 backdrop-blur-sm border border-primary/30 px-3 py-1.5 sm:px-4 sm:py-2 text-[10px] sm:text-xs font-semibold text-primary hover:bg-white shadow-md transition min-h-[32px] sm:min-h-[36px] flex items-center justify-center touch-manipulation"
+      >
+        新規保証登録
+      </Link>
+      
       <div className="mx-auto max-w-2xl px-4 py-6 sm:px-5 sm:py-10">
         <div className="card-blur shadow-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 space-y-6">
           <div className="flex items-center gap-3 sm:gap-4">
@@ -149,21 +157,13 @@ export default function StatusPage() {
             </form>
           </div>
 
-          <div className="space-y-3">
-            <div className="text-center">
-              <Link
-                href="/terms.html"
-                target="_blank"
-                className="text-xs sm:text-sm text-primary hover:underline inline-flex items-center gap-1"
-              >
-                安心保証 ご利用規約を確認する
-              </Link>
-            </div>
+          <div className="text-center">
             <Link
-              href="/status"
-              className="block w-full rounded-xl sm:rounded-2xl border border-primary/50 bg-white px-4 py-2.5 sm:px-6 sm:py-3 text-center text-xs sm:text-sm font-semibold text-primary hover:bg-primary/5 transition min-h-[44px] flex items-center justify-center touch-manipulation"
+              href="/terms.html"
+              target="_blank"
+              className="text-xs sm:text-sm text-primary hover:underline inline-flex items-center gap-1"
             >
-              別の情報を確認する
+              安心保証 ご利用規約を確認する
             </Link>
           </div>
         </div>
