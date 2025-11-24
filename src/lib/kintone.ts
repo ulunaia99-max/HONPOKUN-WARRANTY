@@ -39,7 +39,7 @@ const planLabelMap: Record<WarrantyPlan, string> = {
 /**
  * 管理番号でkintoneのレコードを検索
  */
-async function findRecordByManagementId(
+export async function findRecordByManagementId(
   managementId: string,
 ): Promise<{ id: string; record: Record<string, any> } | null> {
   const domain = process.env.KINTONE_DOMAIN;
