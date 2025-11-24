@@ -210,16 +210,10 @@ export function RegistrationForm() {
     setMessage(undefined);
 
     try {
-      // ハイフンを除去して送信
-      const payload = {
-        ...formState,
-        phone: formState.phone.replace(/\D/g, ""),
-        postalCode: formState.postalCode.replace(/\D/g, ""),
-      };
       const response = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(formState),
       });
 
       const data = await response.json();
