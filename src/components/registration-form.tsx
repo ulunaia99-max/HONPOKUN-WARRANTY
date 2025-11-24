@@ -107,23 +107,9 @@ export function RegistrationForm() {
   const [isAddressLoading, setIsAddressLoading] = useState(false);
   const [isCheckingManagementId, setIsCheckingManagementId] = useState(false);
 
-  // 氏名にスペースを自動挿入（苗字と名前の間）
-  const formatNameWithSpace = (text: string): string => {
-    if (!text || text.length < 2) return text;
-    // 既にスペースがある場合はそのまま
-    if (text.includes(" ")) return text;
-    // 2文字以上でスペースがない場合、2文字目と3文字目の間にスペースを挿入
-    const trimmed = text.trim();
-    if (trimmed.length >= 2 && !trimmed.includes(" ")) {
-      // 最初の2文字の後にスペースを挿入
-      return trimmed.slice(0, 2) + " " + trimmed.slice(2);
-    }
-    return text;
-  };
-
-  // 管理番号の存在確認と電話番号検証
-  const checkManagementId = async (managementId: string, phone: string) => {
-    if (!managementId || managementId.length < 10 || !phone || phone.replace(/\D/g, "").length < 10) {
+  // 管理番号の存在確認（電話番号検証は既に登録済みの場合のみ）
+  const checkManagementId = async (managementId: string) => {
+    if (!managementId || managementId.length < 10) {
       return { valid: false, message: "" };
     }
 
@@ -132,7 +118,7 @@ export function RegistrationForm() {
       const response = await fetch("/api/check-management-id", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ managementId, phone: phone.replace(/\D/g, "") }),
+        body: JSON.stringify({ managementId }),
       });
 
       const data = await response.json();
@@ -148,14 +134,7 @@ export function RegistrationForm() {
   };
 
   const updateField = (field: keyof FormState, value: string | boolean) => {
-    // 氏名のフォーマット（スペース自動挿入）
-    if (field === "fullName") {
-      const nameValue = value as string;
-      const formatted = formatNameWithSpace(nameValue);
-      setFormState((prev) => ({ ...prev, fullName: formatted }));
-    } else {
-      setFormState((prev) => ({ ...prev, [field]: value }));
-    }
+    setFormState((prev) => ({ ...prev, [field]: value }));
   };
 
   // 郵便番号フォーマット関数（123-4567）

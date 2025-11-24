@@ -4,7 +4,6 @@ import { findRecordByManagementId } from "@/lib/kintone";
 
 const checkSchema = z.object({
   managementId: z.string().regex(/^URC\d{7}$/, "管理番号はURCに続けて7桁の数字で入力してください"),
-  phone: z.string().min(10, "電話番号を入力してください"),
 });
 
 export async function POST(request: Request) {
@@ -23,7 +22,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { managementId, phone } = parsed.data;
+    const { managementId } = parsed.data;
 
     // 管理番号でレコードを検索
     const record = await findRecordByManagementId(managementId);
@@ -47,23 +46,8 @@ export async function POST(request: Request) {
     const existingPhone = record.record[FIELD_CODES.phone]?.value || "";
     const existingName = record.record[FIELD_CODES.fullName]?.value || "";
 
+    // 既に登録済みの場合はエラー
     if (existingName || existingPhone) {
-      // 既に登録済みの場合、電話番号の下4桁を確認
-      if (existingPhone) {
-        const phoneDigits = phone.replace(/\D/g, "");
-        const existingPhoneDigits = existingPhone.replace(/\D/g, "");
-        
-        if (existingPhoneDigits.slice(-4) !== phoneDigits.slice(-4)) {
-          return NextResponse.json(
-            {
-              ok: false,
-              message: "管理番号と電話番号の組み合わせが正しくありません。",
-            },
-            { status: 403 },
-          );
-        }
-      }
-      
       return NextResponse.json(
         {
           ok: false,
@@ -73,9 +57,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // 管理番号は存在するが未登録の場合、電話番号の下4桁で検証
-    // （kintoneに管理番号と電話番号の関連情報があれば確認）
-    // ここでは管理番号が存在し、未登録であることを確認
+    // 管理番号は存在するが未登録の場合、登録可能
     return NextResponse.json(
       {
         ok: true,
