@@ -55,13 +55,16 @@ export default function StatusPage() {
       <div className="mx-auto max-w-2xl px-4 py-6 sm:px-5 sm:py-10">
         <div className="card-blur shadow-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 space-y-6">
           <div className="flex items-center gap-3 sm:gap-4">
-            <Image
-              src="/logo-official.png"
-              alt="ほんぽくんロゴ"
-              width={100}
-              height={100}
-              className="h-16 w-16 sm:h-20 sm:w-20 lg:h-24 lg:w-24 rounded-xl sm:rounded-2xl bg-white p-1.5 sm:p-2 shadow-card flex-shrink-0"
-            />
+            <div className="relative h-16 w-16 sm:h-20 sm:w-20 lg:h-24 lg:w-24 flex-shrink-0 rounded-xl sm:rounded-2xl bg-white p-1.5 sm:p-2 shadow-card overflow-hidden">
+              <Image
+                src="/logo-official.png"
+                alt="ほんぽくんロゴ"
+                width={100}
+                height={100}
+                className="h-full w-full object-contain"
+                style={{ objectFit: "contain" }}
+              />
+            </div>
             <div className="min-w-0 flex-1">
               <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-primary">
                 HONPOKUN WARRANTY
@@ -125,6 +128,16 @@ export default function StatusPage() {
                 {isLoading ? "確認中..." : "登録情報を確認する"}
               </button>
             </form>
+          </div>
+
+          <div className="text-center pt-2">
+            <Link
+              href="/terms.html"
+              target="_blank"
+              className="text-xs sm:text-sm text-primary hover:underline inline-flex items-center gap-1"
+            >
+              安心保証 ご利用規約を確認する
+            </Link>
           </div>
         </div>
       </div>

@@ -53,13 +53,16 @@ export default function RegisteredPage() {
       <div className="mx-auto max-w-3xl px-4 py-6 sm:px-5 sm:py-10">
         <div className="card-blur shadow-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 space-y-5 sm:space-y-6">
           <div className="flex items-center gap-3 sm:gap-4">
-            <Image
-              src="/logo-official.png"
-              alt="ほんぽくんロゴ"
-              width={100}
-              height={100}
-              className="h-16 w-16 sm:h-20 sm:w-20 lg:h-24 lg:w-24 rounded-xl sm:rounded-2xl bg-white p-1.5 sm:p-2 shadow-card flex-shrink-0"
-            />
+            <div className="relative h-16 w-16 sm:h-20 sm:w-20 lg:h-24 lg:w-24 flex-shrink-0 rounded-xl sm:rounded-2xl bg-white p-1.5 sm:p-2 shadow-card overflow-hidden">
+              <Image
+                src="/logo-official.png"
+                alt="ほんぽくんロゴ"
+                width={100}
+                height={100}
+                className="h-full w-full object-contain"
+                style={{ objectFit: "contain" }}
+              />
+            </div>
             <div className="min-w-0 flex-1">
               <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-primary">
                 HONPOKUN WARRANTY

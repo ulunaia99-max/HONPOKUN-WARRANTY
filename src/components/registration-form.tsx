@@ -227,13 +227,16 @@ export function RegistrationForm() {
       <div className="space-y-5">
         <div className="flex flex-col gap-4 rounded-2xl sm:rounded-3xl bg-white/90 p-4 sm:p-5 shadow-card sm:flex-row sm:items-center">
           <div className="flex items-center gap-3 sm:gap-5">
-            <Image
-              src="/logo-official.png"
-              alt="ほんぽくんロゴ"
-              width={140}
-              height={140}
-              className="h-20 w-20 sm:h-28 sm:w-28 rounded-2xl sm:rounded-3xl bg-white object-contain p-2 sm:p-3 shadow-card flex-shrink-0"
-            />
+            <div className="relative h-20 w-20 sm:h-28 sm:w-28 flex-shrink-0 rounded-2xl sm:rounded-3xl bg-white p-2 sm:p-3 shadow-card overflow-hidden">
+              <Image
+                src="/logo-official.png"
+                alt="ほんぽくんロゴ"
+                width={140}
+                height={140}
+                className="h-full w-full object-contain"
+                style={{ objectFit: "contain" }}
+              />
+            </div>
             <div className="min-w-0 flex-1">
               <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-primary">
                 HONPOKUN WARRANTY

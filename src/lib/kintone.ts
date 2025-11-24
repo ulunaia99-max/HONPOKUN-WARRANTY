@@ -172,7 +172,11 @@ export async function createKintoneRecord(
       throw new Error(`kintoneの更新に失敗しました: ${message}`);
     }
 
-  return response.json();
+    return response.json();
+  }
+
+  // 管理番号が見つからない場合はエラー
+  throw new Error("該当の管理番号は見当たりません。");
 }
 
 /**
@@ -250,9 +254,5 @@ export async function getWarrantyStatus(
       warrantyEndDate: record.record[FIELD_CODES.warrantyEndDate]?.value || "",
     },
   };
-}
-
-  // 管理番号が存在しない場合はエラー
-  throw new Error("該当の管理番号は見当たりません。");
 }
 
