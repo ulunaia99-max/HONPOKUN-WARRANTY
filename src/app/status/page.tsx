@@ -55,7 +55,7 @@ export default function StatusPage() {
       {/* 新規保証登録ボタン（右上隅） */}
       <Link
         href="/"
-        className="fixed top-4 right-4 z-10 rounded-lg bg-white/90 backdrop-blur-sm border border-primary/30 px-3 py-1.5 sm:px-4 sm:py-2 text-[10px] sm:text-xs font-semibold text-primary hover:bg-white shadow-md transition min-h-[32px] sm:min-h-[36px] flex items-center justify-center touch-manipulation"
+        className="fixed top-3 right-3 sm:top-4 sm:right-4 z-10 rounded-lg bg-white/95 backdrop-blur-sm border border-primary/40 px-2.5 py-1.5 sm:px-3 sm:py-2 text-[10px] sm:text-xs font-semibold text-primary hover:bg-white hover:shadow-lg transition shadow-sm min-h-[28px] sm:min-h-[32px] flex items-center justify-center touch-manipulation"
       >
         新規保証登録
       </Link>
@@ -134,8 +134,11 @@ export default function StatusPage() {
                 />
               </div>
               {error && (
-                <div className="rounded-xl sm:rounded-2xl p-3 sm:p-4 text-xs sm:text-sm font-medium bg-red-50 text-red-700 space-y-2">
-                  <p>{error}</p>
+                <div className="rounded-xl sm:rounded-2xl p-3 sm:p-4 text-xs sm:text-sm font-medium bg-red-50 text-red-700 space-y-2.5">
+                  <p className="font-semibold">{error}</p>
+                  <p className="text-[10px] sm:text-xs text-red-600 leading-relaxed">
+                    保証登録をお済みで無い方は、右上の「新規保証登録」より登録をお願いいたします。
+                  </p>
                   {(error.includes("まだ登録が完了していません") ||
                     error.includes("保証登録フォーム")) && (
                     <Link

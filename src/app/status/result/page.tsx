@@ -92,11 +92,22 @@ function StatusResultContent() {
 
   if (error || !data) {
     return (
-      <main className="hero-gradient min-h-screen">
+      <main className="hero-gradient min-h-screen relative">
+        {/* 新規保証登録ボタン（右上隅） */}
+        <Link
+          href="/"
+          className="fixed top-3 right-3 sm:top-4 sm:right-4 z-10 rounded-lg bg-white/95 backdrop-blur-sm border border-primary/40 px-2.5 py-1.5 sm:px-3 sm:py-2 text-[10px] sm:text-xs font-semibold text-primary hover:bg-white hover:shadow-lg transition shadow-sm min-h-[28px] sm:min-h-[32px] flex items-center justify-center touch-manipulation"
+        >
+          新規保証登録
+        </Link>
+        
         <div className="mx-auto max-w-3xl px-4 py-6 sm:px-5 sm:py-10">
           <div className="card-blur shadow-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 space-y-4">
-            <div className="rounded-xl sm:rounded-2xl p-3 sm:p-4 text-xs sm:text-sm font-medium bg-red-50 text-red-700">
-              {error || "登録情報の取得に失敗しました"}
+            <div className="rounded-xl sm:rounded-2xl p-3 sm:p-4 text-xs sm:text-sm font-medium bg-red-50 text-red-700 space-y-2">
+              <p className="font-semibold">{error || "登録情報の取得に失敗しました"}</p>
+              <p className="text-[10px] sm:text-xs text-red-600 leading-relaxed">
+                保証登録をお済みで無い方は、右上の「新規保証登録」より登録をお願いいたします。
+              </p>
             </div>
             <Link
               href="/status"
@@ -115,7 +126,15 @@ function StatusResultContent() {
   const isExpiringSoon = remainingDays !== null && remainingDays >= 0 && remainingDays <= 30;
 
   return (
-    <main className="hero-gradient min-h-screen">
+    <main className="hero-gradient min-h-screen relative">
+      {/* 新規保証登録ボタン（右上隅） */}
+      <Link
+        href="/"
+        className="fixed top-3 right-3 sm:top-4 sm:right-4 z-10 rounded-lg bg-white/95 backdrop-blur-sm border border-primary/40 px-2.5 py-1.5 sm:px-3 sm:py-2 text-[10px] sm:text-xs font-semibold text-primary hover:bg-white hover:shadow-lg transition shadow-sm min-h-[28px] sm:min-h-[32px] flex items-center justify-center touch-manipulation"
+      >
+        新規保証登録
+      </Link>
+      
       <div className="mx-auto max-w-3xl px-4 py-6 sm:px-5 sm:py-10">
         <div className="card-blur shadow-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 space-y-5 sm:space-y-6">
           <div className="flex items-center gap-3 sm:gap-4">
