@@ -55,9 +55,22 @@ export default function StatusPage() {
       {/* 新規保証登録ボタン（右上隅） */}
       <Link
         href="/"
-        className="fixed top-3 right-3 sm:top-4 sm:right-4 z-10 rounded-lg bg-white/95 backdrop-blur-sm border border-primary/40 px-2.5 py-1.5 sm:px-3 sm:py-2 text-[10px] sm:text-xs font-semibold text-primary hover:bg-white hover:shadow-lg transition shadow-sm min-h-[28px] sm:min-h-[32px] flex items-center justify-center touch-manipulation"
+        className="fixed top-3 right-3 sm:top-4 sm:right-4 z-10 rounded-full bg-white/80 backdrop-blur-sm border border-slate-300/60 px-2 py-2 sm:px-2.5 sm:py-2.5 text-slate-600 hover:bg-white hover:border-slate-400 hover:shadow-md transition shadow-sm w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center touch-manipulation group"
+        title="新規保証登録"
       >
-        新規保証登録
+        <svg
+          className="w-5 h-5 sm:w-5 sm:h-5 text-slate-500 group-hover:text-slate-700 transition"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2.5}
+            d="M12 4v16m8-8H4"
+          />
+        </svg>
       </Link>
       
       <div className="mx-auto max-w-2xl px-4 py-6 sm:px-5 sm:py-10">
@@ -137,7 +150,7 @@ export default function StatusPage() {
                 <div className="rounded-xl sm:rounded-2xl p-3 sm:p-4 text-xs sm:text-sm font-medium bg-red-50 text-red-700 space-y-2.5">
                   <p className="font-semibold">{error}</p>
                   <p className="text-[10px] sm:text-xs text-red-600 leading-relaxed">
-                    保証登録をお済みで無い方は、右上の「新規保証登録」より登録をお願いいたします。
+                    保証登録をお済みで無い方は、右上の＋ボタンより新規保証登録をお願いいたします。
                   </p>
                   {(error.includes("まだ登録が完了していません") ||
                     error.includes("保証登録フォーム")) && (
