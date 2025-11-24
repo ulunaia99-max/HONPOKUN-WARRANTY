@@ -16,7 +16,7 @@ const MANAGEMENT_DIGIT_LENGTH = 7;
 const defaultState: FormState = {
   managementId: MANAGEMENT_PREFIX,
   fullName: "",
-  purchaseAmount: "",
+  passphrase: "",
   postalCode: "",
   address: "",
   phone: "",
@@ -106,10 +106,10 @@ export function RegistrationForm() {
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string }>();
   const [isAddressLoading, setIsAddressLoading] = useState(false);
   const [isCheckingManagementId, setIsCheckingManagementId] = useState(false);
-  const [purchaseAmountError, setPurchaseAmountError] = useState<string | null>(null);
-  const [expectedPurchaseAmount, setExpectedPurchaseAmount] = useState<string | null>(null);
+  const [passphraseError, setPassphraseError] = useState<string | null>(null);
+  const [expectedPassphrase, setExpectedPassphrase] = useState<string | null>(null);
 
-  // 管理番号の存在確認と購入金額の取得
+  // 管理番号の存在確認と合言葉の取得
   const checkManagementId = async (managementId: string) => {
     if (!managementId || managementId.length < 10) {
       return { valid: false, message: "" };
@@ -128,9 +128,9 @@ export function RegistrationForm() {
         return { valid: false, message: data.message || "管理番号の確認に失敗しました。" };
       }
       
-      // 購入金額を取得
-      if (data.purchaseAmount) {
-        setExpectedPurchaseAmount(data.purchaseAmount);
+      // 合言葉を取得
+      if (data.passphrase) {
+        setExpectedPassphrase(data.passphrase);
       }
       
       return { valid: true, message: "" };
@@ -141,34 +141,28 @@ export function RegistrationForm() {
     }
   };
   
-  // 購入金額の検証
-  const validatePurchaseAmount = (amount: string) => {
-    if (!amount) {
-      setPurchaseAmountError(null);
+  // 合言葉の検証
+  const validatePassphrase = (passphrase: string) => {
+    if (!passphrase) {
+      setPassphraseError(null);
       return;
     }
     
-    // 数字のみかチェック
-    if (!/^\d+$/.test(amount)) {
-      setPurchaseAmountError("購入金額は数字で入力してください");
+    // 期待される合言葉と比較
+    if (expectedPassphrase && passphrase !== expectedPassphrase) {
+      setPassphraseError("合言葉が正しくありません。緑の同梱書類に記載の合言葉をご確認ください。");
       return;
     }
     
-    // 期待される購入金額と比較
-    if (expectedPurchaseAmount && amount !== expectedPurchaseAmount) {
-      setPurchaseAmountError(`購入金額が正しくありません。正しい金額: ¥${parseInt(expectedPurchaseAmount, 10).toLocaleString()}`);
-      return;
-    }
-    
-    setPurchaseAmountError(null);
+    setPassphraseError(null);
   };
 
   const updateField = (field: keyof FormState, value: string | boolean) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
     
-    // 購入金額の検証
-    if (field === "purchaseAmount") {
-      validatePurchaseAmount(value as string);
+    // 合言葉の検証
+    if (field === "passphrase") {
+      validatePassphrase(value as string);
     }
   };
 
@@ -282,11 +276,11 @@ export function RegistrationForm() {
       return;
     }
     
-    // 購入金額の検証
-    if (purchaseAmountError) {
+    // 合言葉の検証
+    if (passphraseError) {
       setMessage({
         type: "error",
-        text: purchaseAmountError,
+        text: passphraseError,
       });
       setIsSubmitting(false);
       return;
@@ -445,17 +439,17 @@ export function RegistrationForm() {
           required
         />
         <InputField
-          label="購入金額"
-          placeholder="50000"
-          value={formState.purchaseAmount}
-          onChange={(value) => {
-            // 数字のみ許可
-            const digits = value.replace(/\D/g, "");
-            updateField("purchaseAmount", digits);
-          }}
+          label="合言葉"
+          placeholder="合言葉を入力"
+          value={formState.passphrase}
+          onChange={(value) => updateField("passphrase", value)}
           required
-          inputMode="numeric"
-          error={purchaseAmountError}
+          error={passphraseError}
+          helper={
+            <span className="text-[10px] sm:text-xs text-slate-500 leading-relaxed">
+              緑の同梱書類に記載されている合言葉を入力してください
+            </span>
+          }
         />
       </div>
 
