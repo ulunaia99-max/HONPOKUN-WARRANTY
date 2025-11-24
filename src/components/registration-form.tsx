@@ -121,14 +121,20 @@ export function RegistrationForm() {
         body: JSON.stringify({ managementId }),
       });
 
-      const data = await response.json();
       if (!response.ok) {
-        return { valid: false, message: data.message || "管理番号の確認に失敗しました。" };
+        const errorData = await response.json().catch(() => ({ message: "管理番号の確認に失敗しました。" }));
+        console.error("Management ID check failed:", errorData);
+        return { valid: false, message: errorData.message || "管理番号の確認に失敗しました。" };
       }
       
+      const data = await response.json();
       return { valid: true, message: "" };
     } catch (error) {
-      return { valid: false, message: "管理番号の確認中にエラーが発生しました。" };
+      console.error("Management ID check error:", error);
+      const errorMessage = error instanceof Error 
+        ? `管理番号の確認中にエラーが発生しました: ${error.message}`
+        : "管理番号の確認中にエラーが発生しました。";
+      return { valid: false, message: errorMessage };
     } finally {
       setIsCheckingManagementId(false);
     }
