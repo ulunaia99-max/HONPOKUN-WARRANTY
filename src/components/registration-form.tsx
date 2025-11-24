@@ -105,28 +105,7 @@ export function RegistrationForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string }>();
   const [isAddressLoading, setIsAddressLoading] = useState(false);
-  const [nameError, setNameError] = useState<string | null>(null);
-  const [furiganaError, setFuriganaError] = useState<string | null>(null);
-
-  // 漢字のみかチェック（スペースは許可）
-  const isValidKanji = (text: string): boolean => {
-    if (!text) return true;
-    // 漢字、ひらがな、カタカナ、スペース、長音符、中点をチェック
-    const kanjiPattern = /^[\u4e00-\u9faf\u3040-\u309f\u30a0-\u30ff\s・ー]*$/;
-    // 漢字が含まれているかチェック
-    const hasKanji = /[\u4e00-\u9faf]/.test(text);
-    // ひらがなやカタカナのみの場合はエラー
-    const onlyHiraganaKatakana = /^[\u3040-\u309f\u30a0-\u30ff\s・ー]*$/.test(text.replace(/[\u4e00-\u9faf]/g, ""));
-    return kanjiPattern.test(text) && hasKanji && !onlyHiraganaKatakana;
-  };
-
-  // カタカナのみかチェック（スペースは許可）
-  const isValidKatakana = (text: string): boolean => {
-    if (!text) return true;
-    // カタカナ、スペース、長音符、中点のみ許可
-    const katakanaPattern = /^[\u30a0-\u30ff\s・ー]*$/;
-    return katakanaPattern.test(text);
-  };
+  const [isCheckingManagementId, setIsCheckingManagementId] = useState(false);
 
   // 氏名にスペースを自動挿入（苗字と名前の間）
   const formatNameWithSpace = (text: string): string => {
@@ -134,7 +113,6 @@ export function RegistrationForm() {
     // 既にスペースがある場合はそのまま
     if (text.includes(" ")) return text;
     // 2文字以上でスペースがない場合、2文字目と3文字目の間にスペースを挿入
-    // ただし、既にスペースがある場合は何もしない
     const trimmed = text.trim();
     if (trimmed.length >= 2 && !trimmed.includes(" ")) {
       // 最初の2文字の後にスペースを挿入
@@ -143,40 +121,40 @@ export function RegistrationForm() {
     return text;
   };
 
-  // 漢字からフリガナへの簡易変換（ブラウザの読み上げ機能を使用）
-  const convertKanjiToKatakana = async (kanji: string): Promise<string> => {
-    // 完全な変換は難しいため、ユーザーが手動で入力する必要があります
-    // ここでは検証のみ行い、自動変換は行いません
-    return "";
+  // 管理番号の存在確認と電話番号検証
+  const checkManagementId = async (managementId: string, phone: string) => {
+    if (!managementId || managementId.length < 10 || !phone || phone.replace(/\D/g, "").length < 10) {
+      return { valid: false, message: "" };
+    }
+
+    setIsCheckingManagementId(true);
+    try {
+      const response = await fetch("/api/check-management-id", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ managementId, phone: phone.replace(/\D/g, "") }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        return { valid: false, message: data.message || "管理番号の確認に失敗しました。" };
+      }
+      return { valid: true, message: "" };
+    } catch (error) {
+      return { valid: false, message: "管理番号の確認中にエラーが発生しました。" };
+    } finally {
+      setIsCheckingManagementId(false);
+    }
   };
 
   const updateField = (field: keyof FormState, value: string | boolean) => {
-    // 氏名（漢字）の検証とフォーマット
+    // 氏名のフォーマット（スペース自動挿入）
     if (field === "fullName") {
       const nameValue = value as string;
       const formatted = formatNameWithSpace(nameValue);
-      
-      // フォーマットされた値で更新
       setFormState((prev) => ({ ...prev, fullName: formatted }));
-      
-      // 検証
-      if (formatted && !isValidKanji(formatted)) {
-        setNameError("漢字で入力してください（ひらがな・カタカナのみは不可）");
-      } else {
-        setNameError(null);
-      }
     } else {
       setFormState((prev) => ({ ...prev, [field]: value }));
-    }
-    
-    // フリガナの検証
-    if (field === "furigana") {
-      const furiganaValue = value as string;
-      if (furiganaValue && !isValidKatakana(furiganaValue)) {
-        setFuriganaError("カタカナで入力してください");
-      } else {
-        setFuriganaError(null);
-      }
     }
   };
 
@@ -269,10 +247,13 @@ export function RegistrationForm() {
       });
       return;
     }
-    if (nameError || furiganaError) {
+    // 管理番号と電話番号の組み合わせを確認
+    const phoneDigits = formState.phone.replace(/\D/g, "");
+    const checkResult = await checkManagementId(formState.managementId, formState.phone);
+    if (!checkResult.valid) {
       setMessage({
         type: "error",
-        text: "氏名またはフリガナの入力形式をご確認ください。",
+        text: checkResult.message || "管理番号と電話番号の組み合わせが正しくありません。",
       });
       return;
     }
@@ -432,12 +413,11 @@ export function RegistrationForm() {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <InputField
-          label="氏名（漢字）"
+          label="氏名"
           placeholder="本舗 太郎"
           value={formState.fullName}
           onChange={(value) => updateField("fullName", value)}
           required
-          error={nameError}
         />
         <InputField
           label="氏名（フリガナ）"
@@ -445,7 +425,6 @@ export function RegistrationForm() {
           value={formState.furigana}
           onChange={(value) => updateField("furigana", value)}
           required
-          error={furiganaError}
         />
       </div>
 
@@ -531,10 +510,10 @@ export function RegistrationForm() {
 
       <button
         type="submit"
-        disabled={isSubmitting || !formState.termsAgreed || !isManagementIdValid}
+        disabled={isSubmitting || isCheckingManagementId || !formState.termsAgreed || !isManagementIdValid}
         className="w-full bg-primary text-white font-semibold py-3.5 sm:py-4 rounded-xl sm:rounded-2xl shadow-card disabled:opacity-70 disabled:cursor-not-allowed text-sm sm:text-base min-h-[48px] touch-manipulation"
       >
-        {isSubmitting ? "送信中..." : "保証登録を送信する"}
+        {isSubmitting ? "送信中..." : isCheckingManagementId ? "確認中..." : "保証登録を送信する"}
       </button>
     </form>
   );
