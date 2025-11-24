@@ -32,8 +32,8 @@ export default function Page() {
   }
 
   return (
-    <main className="hero-gradient">
-      <div className="mx-auto max-w-3xl px-5 py-10">
+    <main className="hero-gradient min-h-screen">
+      <div className="mx-auto max-w-3xl px-4 py-6 sm:px-5 sm:py-10">
         <RegistrationForm />
       </div>
     </main>

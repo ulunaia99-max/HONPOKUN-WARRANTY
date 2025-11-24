@@ -11,6 +11,26 @@
 body {
   margin: 0;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* モバイルでのタッチ操作を最適化 */
+button,
+a,
+input,
+select,
+textarea {
+  touch-action: manipulation;
+}
+
+/* モバイルでのテキスト選択を改善 */
+@media (max-width: 640px) {
+  body {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
 }
 
 .hero-gradient {

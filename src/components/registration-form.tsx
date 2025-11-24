@@ -222,33 +222,33 @@ export function RegistrationForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="card-blur shadow-card rounded-3xl p-6 sm:p-8 space-y-6 max-w-4xl mx-auto"
+      className="card-blur shadow-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 space-y-5 sm:space-y-6 max-w-4xl mx-auto"
     >
       <div className="space-y-5">
-        <div className="flex flex-col gap-5 rounded-3xl bg-white/90 p-5 shadow-card sm:flex-row sm:items-center">
-          <div className="flex items-center gap-5">
+        <div className="flex flex-col gap-4 rounded-2xl sm:rounded-3xl bg-white/90 p-4 sm:p-5 shadow-card sm:flex-row sm:items-center">
+          <div className="flex items-center gap-3 sm:gap-5">
             <Image
               src="/logo-official.png"
               alt="ほんぽくんロゴ"
               width={140}
               height={140}
-              className="h-28 w-28 rounded-3xl bg-white object-contain p-3 shadow-card"
+              className="h-20 w-20 sm:h-28 sm:w-28 rounded-2xl sm:rounded-3xl bg-white object-contain p-2 sm:p-3 shadow-card flex-shrink-0"
             />
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-primary">
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-primary">
                 HONPOKUN WARRANTY
               </p>
-              <h1 className="text-4xl font-black text-slate-900 leading-tight">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 leading-tight">
                 保証登録フォーム
               </h1>
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-xs sm:text-sm text-slate-500">
                 LINEメニューから1分で完了。保証延長・口コミ特典・有料プランの申し込みがここで完結します。
               </p>
             </div>
           </div>
-          <div className="rounded-2xl bg-soft px-4 py-3 text-sm text-slate-600 sm:ml-auto">
+          <div className="rounded-xl sm:rounded-2xl bg-soft px-3 py-2.5 sm:px-4 sm:py-3 text-xs sm:text-sm text-slate-600 sm:ml-auto">
             <p className="font-semibold text-primary">こんな方におすすめ</p>
-            <ul className="mt-2 list-disc pl-4 space-y-1 text-xs text-slate-600">
+            <ul className="mt-1.5 sm:mt-2 list-disc pl-4 space-y-0.5 sm:space-y-1 text-[10px] sm:text-xs text-slate-600">
               <li>購入後も手厚い修理サポートが欲しい</li>
               <li>他PCの修理や相談もまとめて任せたい</li>
               <li>LINEだけで全て完結させたい</li>
@@ -256,28 +256,28 @@ export function RegistrationForm() {
           </div>
         </div>
 
-        <div className="space-y-4 rounded-3xl bg-white/95 p-5 shadow-card">
-          <p className="text-sm font-semibold text-primary">保証登録で嬉しい内容が満載！</p>
-          <div className="grid gap-4 md:grid-cols-3">
+        <div className="space-y-4 rounded-2xl sm:rounded-3xl bg-white/95 p-4 sm:p-5 shadow-card">
+          <p className="text-xs sm:text-sm font-semibold text-primary">保証登録で嬉しい内容が満載！</p>
+          <div className="grid gap-3 sm:gap-4 md:grid-cols-3">
             {perkCards.map((perk) => (
               <div
                 key={perk.title}
-                className="flex flex-col gap-2 rounded-2xl border border-soft bg-white/80 p-4 shadow-card"
+                className="flex flex-col gap-2 rounded-xl sm:rounded-2xl border border-soft bg-white/80 p-3 sm:p-4 shadow-card"
               >
-                <span className="text-2xl">{perk.icon}</span>
-                <p className="text-sm font-bold text-slate-800">{perk.title}</p>
-                <p className="text-xs text-slate-600">{perk.description}</p>
+                <span className="text-xl sm:text-2xl">{perk.icon}</span>
+                <p className="text-xs sm:text-sm font-bold text-slate-800">{perk.title}</p>
+                <p className="text-[11px] sm:text-xs text-slate-600 leading-relaxed">{perk.description}</p>
               </div>
             ))}
           </div>
-          <div className="rounded-2xl border border-soft bg-gradient-to-r from-soft to-white p-4">
-            <p className="text-sm font-bold text-slate-800">修理事例と他社との比較</p>
-            <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-xl sm:rounded-2xl border border-soft bg-gradient-to-r from-soft to-white p-3 sm:p-4">
+            <p className="text-xs sm:text-sm font-bold text-slate-800">修理事例と他社との比較</p>
+            <div className="mt-2 sm:mt-3 grid gap-2 sm:gap-3 sm:grid-cols-3">
               {repairComparisons.map((item) => (
-                <div key={item.title} className="rounded-2xl bg-white px-3 py-3 text-xs shadow-card">
+                <div key={item.title} className="rounded-xl sm:rounded-2xl bg-white px-2.5 py-2.5 sm:px-3 sm:py-3 text-[10px] sm:text-xs shadow-card">
                   <p className="font-bold text-slate-800">{item.title}</p>
                   <p className="text-slate-600">{item.cause}</p>
-                  <p className="mt-2 text-primary font-semibold">{item.ours}</p>
+                  <p className="mt-1.5 sm:mt-2 text-primary font-semibold">{item.ours}</p>
                   <p className="text-slate-500">{item.others}</p>
                 </div>
               ))}
@@ -287,10 +287,10 @@ export function RegistrationForm() {
       </div>
 
       <div>
-        <p className="text-sm text-primary font-semibold uppercase tracking-wider">
+        <p className="text-xs sm:text-sm text-primary font-semibold uppercase tracking-wider">
           STEP 1
         </p>
-        <h2 className="text-2xl font-bold text-slate-800 mt-1">お客様情報</h2>
+        <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mt-1">お客様情報</h2>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <InputField
@@ -410,7 +410,7 @@ export function RegistrationForm() {
 
       {message && (
         <div
-          className={`rounded-2xl p-4 text-sm font-medium ${
+          className={`rounded-xl sm:rounded-2xl p-3 sm:p-4 text-xs sm:text-sm font-medium ${
             message.type === "success"
               ? "bg-green-50 text-green-700"
               : "bg-red-50 text-red-700"
@@ -423,7 +423,7 @@ export function RegistrationForm() {
       <button
         type="submit"
         disabled={isSubmitting || !formState.termsAgreed || !isManagementIdValid}
-        className="w-full bg-primary text-white font-semibold py-4 rounded-2xl shadow-card disabled:opacity-70 disabled:cursor-not-allowed"
+        className="w-full bg-primary text-white font-semibold py-3.5 sm:py-4 rounded-xl sm:rounded-2xl shadow-card disabled:opacity-70 disabled:cursor-not-allowed text-sm sm:text-base min-h-[48px] touch-manipulation"
       >
         {isSubmitting ? "送信中..." : "保証登録を送信する"}
       </button>
@@ -453,7 +453,7 @@ function InputField({
   type = "text",
 }: InputFieldProps) {
   return (
-    <div className="text-sm font-medium text-slate-700 space-y-1.5">
+    <div className="text-xs sm:text-sm font-medium text-slate-700 space-y-1.5">
       <label className="flex flex-col space-y-1.5">
         {label}
         <input
@@ -463,10 +463,10 @@ function InputField({
           inputMode={inputMode}
           placeholder={placeholder}
           onChange={(event) => onChange(event.target.value)}
-          className="w-full rounded-2xl border border-slate-200 bg-white/70 px-4 py-3 text-base focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+          className="w-full rounded-xl sm:rounded-2xl border border-slate-200 bg-white/70 px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 min-h-[44px]"
         />
       </label>
-      {helper && <p className="text-xs">{helper}</p>}
+      {helper && <p className="text-[10px] sm:text-xs leading-relaxed">{helper}</p>}
     </div>
   );
 }

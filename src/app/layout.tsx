@@ -12,6 +12,11 @@ export const metadata: Metadata = {
   title: "保証登録フォーム｜ほんぽくん",
   description:
     "LINE連携でカンタン保証登録。キントーンと連携して保証情報を即時反映します。",
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 5,
+  },
 };
 
 export default function RootLayout({
