@@ -16,7 +16,7 @@ const MANAGEMENT_DIGIT_LENGTH = 7;
 const defaultState: FormState = {
   managementId: MANAGEMENT_PREFIX,
   fullName: "",
-  furigana: "",
+  purchaseAmount: "",
   postalCode: "",
   address: "",
   phone: "",
@@ -106,8 +106,10 @@ export function RegistrationForm() {
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string }>();
   const [isAddressLoading, setIsAddressLoading] = useState(false);
   const [isCheckingManagementId, setIsCheckingManagementId] = useState(false);
+  const [purchaseAmountError, setPurchaseAmountError] = useState<string | null>(null);
+  const [expectedPurchaseAmount, setExpectedPurchaseAmount] = useState<string | null>(null);
 
-  // 管理番号の存在確認（電話番号検証は既に登録済みの場合のみ）
+  // 管理番号の存在確認と購入金額の取得
   const checkManagementId = async (managementId: string) => {
     if (!managementId || managementId.length < 10) {
       return { valid: false, message: "" };
@@ -125,6 +127,12 @@ export function RegistrationForm() {
       if (!response.ok) {
         return { valid: false, message: data.message || "管理番号の確認に失敗しました。" };
       }
+      
+      // 購入金額を取得
+      if (data.purchaseAmount) {
+        setExpectedPurchaseAmount(data.purchaseAmount);
+      }
+      
       return { valid: true, message: "" };
     } catch (error) {
       return { valid: false, message: "管理番号の確認中にエラーが発生しました。" };
@@ -132,9 +140,36 @@ export function RegistrationForm() {
       setIsCheckingManagementId(false);
     }
   };
+  
+  // 購入金額の検証
+  const validatePurchaseAmount = (amount: string) => {
+    if (!amount) {
+      setPurchaseAmountError(null);
+      return;
+    }
+    
+    // 数字のみかチェック
+    if (!/^\d+$/.test(amount)) {
+      setPurchaseAmountError("購入金額は数字で入力してください");
+      return;
+    }
+    
+    // 期待される購入金額と比較
+    if (expectedPurchaseAmount && amount !== expectedPurchaseAmount) {
+      setPurchaseAmountError(`購入金額が正しくありません。正しい金額: ¥${parseInt(expectedPurchaseAmount, 10).toLocaleString()}`);
+      return;
+    }
+    
+    setPurchaseAmountError(null);
+  };
 
   const updateField = (field: keyof FormState, value: string | boolean) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
+    
+    // 購入金額の検証
+    if (field === "purchaseAmount") {
+      validatePurchaseAmount(value as string);
+    }
   };
 
   // 郵便番号フォーマット関数（123-4567）
@@ -242,6 +277,16 @@ export function RegistrationForm() {
       setMessage({
         type: "error",
         text: checkResult.message || "管理番号の確認に失敗しました。",
+      });
+      setIsSubmitting(false);
+      return;
+    }
+    
+    // 購入金額の検証
+    if (purchaseAmountError) {
+      setMessage({
+        type: "error",
+        text: purchaseAmountError,
       });
       setIsSubmitting(false);
       return;
@@ -400,11 +445,17 @@ export function RegistrationForm() {
           required
         />
         <InputField
-          label="氏名（フリガナ）"
-          placeholder="ホンポ タロウ"
-          value={formState.furigana}
-          onChange={(value) => updateField("furigana", value)}
+          label="購入金額"
+          placeholder="50000"
+          value={formState.purchaseAmount}
+          onChange={(value) => {
+            // 数字のみ許可
+            const digits = value.replace(/\D/g, "");
+            updateField("purchaseAmount", digits);
+          }}
           required
+          inputMode="numeric"
+          error={purchaseAmountError}
         />
       </div>
 

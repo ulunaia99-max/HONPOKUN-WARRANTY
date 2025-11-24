@@ -9,8 +9,8 @@ const payloadSchema = z.object({
   managementId: z
     .string()
     .regex(/^URC\d{7}$/, "管理番号はURCに続けて7桁の数字で入力してください"),
-  fullName: z.string().min(1, "氏名（漢字）を入力してください"),
-  furigana: z.string().min(1, "フリガナを入力してください"),
+  fullName: z.string().min(1, "氏名を入力してください"),
+  purchaseAmount: z.string().min(1, "購入金額を入力してください").regex(/^\d+$/, "購入金額は数字で入力してください"),
   postalCode: z.string().min(7, "郵便番号を入力してください"),
   address: z.string().min(1, "住所を入力してください"),
   phone: z.string().min(10, "電話番号を入力してください"),
