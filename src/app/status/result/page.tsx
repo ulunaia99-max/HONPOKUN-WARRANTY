@@ -277,29 +277,29 @@ function StatusResultContent() {
           </div>
 
           {/* 保証内容 */}
-          <div className="rounded-xl sm:rounded-3xl bg-white/90 p-4 sm:p-5 border border-primary/30 space-y-4">
+          <div className="rounded-xl sm:rounded-3xl bg-white/90 p-4 sm:p-5 border border-primary/30 space-y-3 sm:space-y-4">
             <h2 className="text-lg sm:text-xl font-bold text-slate-800">保証内容</h2>
             
-            {/* メイン：修理費作業費全額負担 */}
+            {/* メイン：修理作業費全額負担 */}
             <div className="rounded-xl sm:rounded-2xl bg-primary/10 p-4 sm:p-5 border-2 border-primary/30">
               <div className="flex items-start gap-3">
-                <span className="text-2xl sm:text-3xl flex-shrink-0">✓</span>
-                <div>
-                  <p className="text-base sm:text-lg font-bold text-primary mb-1">
-                    修理費・作業費は全額弊社負担
+                <span className="text-xl sm:text-2xl flex-shrink-0">✓</span>
+                <div className="flex-1">
+                  <p className="text-base sm:text-lg font-bold text-primary mb-1.5">
+                    修理作業費は全額弊社負担
                   </p>
                   <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
-                    保証期間中の修理作業費はすべて無料です。お客様のご負担は一切ありません。
+                    保証期間中の修理作業費はすべて無料です。
                   </p>
                 </div>
               </div>
             </div>
 
             {/* 予備：部品代のみお客様負担 */}
-            <div className="rounded-xl sm:rounded-2xl bg-slate-50 p-3 sm:p-4 border border-slate-200">
-              <div className="flex items-start gap-2 sm:gap-3">
-                <span className="text-primary font-bold flex-shrink-0 text-sm sm:text-base">※</span>
-                <div>
+            <div className="rounded-xl sm:rounded-2xl bg-slate-50 p-3.5 sm:p-4 border border-slate-200">
+              <div className="flex items-start gap-2.5 sm:gap-3">
+                <span className="text-primary font-bold flex-shrink-0 text-base sm:text-lg">※</span>
+                <div className="flex-1">
                   <p className="text-sm sm:text-base font-semibold text-slate-800 mb-1">
                     部品代のみお客様負担
                   </p>
@@ -311,24 +311,24 @@ function StatusResultContent() {
             </div>
 
             {/* 注意事項：送料 */}
-            <div className="rounded-xl sm:rounded-2xl bg-yellow-50 p-3 sm:p-4 border border-yellow-200">
-              <div className="flex items-start gap-2 sm:gap-3">
-                <span className="text-yellow-600 font-bold flex-shrink-0 text-sm sm:text-base">⚠</span>
-                <div>
+            <div className="rounded-xl sm:rounded-2xl bg-yellow-50 p-3.5 sm:p-4 border border-yellow-200">
+              <div className="flex items-start gap-2.5 sm:gap-3">
+                <span className="text-yellow-600 font-bold flex-shrink-0 text-base sm:text-lg">⚠</span>
+                <div className="flex-1">
                   <p className="text-sm sm:text-base font-semibold text-yellow-800 mb-1">
                     送料について
                   </p>
                   <p className="text-xs sm:text-sm text-yellow-700 leading-relaxed">
-                    発送修理の場合は、往復送料（元払い発送）をお客様にご負担いただきます。
+                    発送修理の場合は、往復送料をお客様にご負担いただきます。
                   </p>
                 </div>
               </div>
             </div>
 
             {/* その他 */}
-            <div className="rounded-xl sm:rounded-2xl bg-slate-50 p-3 sm:p-4 border border-slate-200">
-              <div className="flex items-start gap-2 sm:gap-3">
-                <span className="text-primary font-bold flex-shrink-0 text-sm sm:text-base">•</span>
+            <div className="rounded-xl sm:rounded-2xl bg-slate-50 p-3.5 sm:p-4 border border-slate-200">
+              <div className="flex items-start gap-2.5 sm:gap-3">
+                <span className="text-primary font-bold flex-shrink-0 text-base sm:text-lg">•</span>
                 <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
                   他にお持ちのパソコンも対象（作業費は半額まで弊社負担）
                 </p>
