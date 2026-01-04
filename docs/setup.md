@@ -1,25 +1,58 @@
-## 環境変数の設定
+# 開発環境セットアップ手順
 
-`.env.local` に以下の値を設定してください。kintoneアプリのフィールドコードは `src/lib/kintone.ts` の `FIELD_CODES` を実際の環境に合わせて変更します。
+このプロジェクトを新しい環境（別のPCなど）でセットアップするための手順です。
 
+## 1. リポジトリのクローン
+ターミナルで作業ディレクトリに移動し、以下のコマンドを実行します。
+
+```bash
+git clone https://github.com/ulunaia99-max/HONPOKUN-WARRANTY.git
+cd HONPOKUN-WARRANTY
 ```
+
+## 2. 依存関係のインストール
+必要なパッケージをインストールします。
+
+```bash
+npm install
+```
+
+## 3. 環境変数の設定
+ルートディレクトリに `.env` ファイルを作成し、以下の内容を設定してください。
+※ 既存の環境から値をコピーするか、管理者に問い合わせてください。
+
+**`.env` の内容例:**
+
+```env
+# データベース接続 (SQLiteの場合)
+DATABASE_URL="file:./dev.db"
+
+# Kintone連携 (必要な場合)
 KINTONE_DOMAIN=your-subdomain.cybozu.com
 KINTONE_APP_ID=123
 KINTONE_API_TOKEN=xxxxxxxxxxxxxxxxxxxx
 ```
 
-## セットアップ手順
+## 4. データベースのセットアップ
+Prismaを使用してSQLiteデータベースを作成・マイグレーションします。
 
-1. 依存関係をインストール  
-   `npm install`
-2. 開発サーバーを起動  
-   `npm run dev`
-3. `http://localhost:3000` にアクセスしてフォームを確認します。LINEの挨拶メッセージでは、このURLをLIFFまたは外部ブラウザリンクとして使用してください。
+```bash
+npx prisma migrate dev
+```
+※ このコマンドで `dev.db` が作成され、テーブル構造が定義されます。
 
-## kintone連携
+## 5. 開発サーバーの起動
 
-- APIトークンには「レコード追加」権限が必要です。
-- 口コミ投稿の有無などのフィールドが無い場合は、新規フィールドを作成し `FIELD_CODES` と揃えてください。
-- 本番運用時は必ずHTTPSで配信し、APIトークンはサーバーサイドのみで扱ってください。
+```bash
+npm run dev
+```
+`http://localhost:3000` にアクセスして動作を確認してください。
 
+## トラブルシューティング
 
+### データベースエラーが発生する場合
+- `.env` ファイルに `DATABASE_URL` が正しく設定されているか確認してください。
+- `npx prisma generate` を実行してクライアントを再生成してみてください。
+
+### Kintoneエラー
+- APIトークンの権限（レコード追加など）を確認してください。
