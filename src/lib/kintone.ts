@@ -1,3 +1,5 @@
+import { prisma } from "./db";
+
 export type WarrantyPlan = "standard" | "campaign" | "m" | "s";
 
 export type WarrantyRegistrationPayload = {
@@ -12,85 +14,45 @@ export type WarrantyRegistrationPayload = {
   termsAgreed: boolean;
 };
 
-const FIELD_CODES = {
-  managementId: "文字列__1行__14",
-  phone: "文字列__1行__4",
-  fullName: "name_1",
-  fullNameFurigana: "furigana",
-  postalCode: "文字列__1行__5",
-  address: "address_1",
-  maker: "maker_1",
-  model: "model_1",
-  serial: "serial_1",
-  purchaseSite: "ドロップダウン_36",
-  purchaseDate: "hanbai_1",
-  warrantyPeriod: "数値",
-  warrantyPlan: "ラジオボタン_0",
-  warrantyEndDate: "日付_0",
-} as const;
-
-const planLabelMap: Record<WarrantyPlan, string> = {
-  standard: "通常保証（1ヶ月）",
-  campaign: "キャンペーン保証（3ヶ月）",
-  m: "Mプラン（6ヶ月）",
-  s: "Sプラン（12ヶ月）",
-};
-
 /**
- * 管理番号でkintoneのレコードを検索
+ * 管理番号でデータベースのレコードを検索
  */
 export async function findRecordByManagementId(
   managementId: string,
 ): Promise<{ id: string; record: Record<string, any> } | null> {
-  const domain = process.env.KINTONE_DOMAIN;
-  const appId = process.env.KINTONE_APP_ID;
-  const apiToken = process.env.KINTONE_API_TOKEN;
-  const mockMode = process.env.KINTONE_MOCK_MODE === "true";
+  try {
+    const record = await prisma.warrantyRegistration.findUnique({
+      where: { managementId },
+    });
 
-  if (mockMode || !domain || !appId || !apiToken) {
-    return null;
-  }
-
-  const endpoint = `https://${domain}/k/v1/records.json`;
-  const query = `${FIELD_CODES.managementId} = "${managementId}"`;
-
-  const response = await fetch(
-    `${endpoint}?app=${appId}&query=${encodeURIComponent(query)}`,
-    {
-      method: "GET",
-      headers: {
-        "X-Cybozu-API-Token": apiToken,
-      },
-    },
-  );
-
-  if (!response.ok) {
-    const message = await response.text();
-    throw new Error(`kintoneの検索に失敗しました: ${message}`);
-  }
-
-  const data = await response.json();
-  if (data.records && data.records.length > 0) {
-    const record = data.records[0];
-    // レコードIDの取得（$id.value または $id）
-    const recordId = record.$id?.value || record.$id;
-    
-    if (!recordId) {
-      console.error("Record ID not found in response:", Object.keys(record));
-      // レコードIDが見つからない場合でも、レコード自体は返す
-      return {
-        id: "unknown",
-        record: record,
-      };
+    if (!record) {
+      return null;
     }
-    
-    return {
-      id: String(recordId),
-      record: record,
-    };
-  }
 
-  return null;
+    // kintoneの形式に合わせたレコード形式を返す
+    return {
+      id: record.id,
+      record: {
+        managementId: record.managementId,
+        phone: record.phone || "",
+        fullName: record.fullName || "",
+        furigana: record.furigana || "",
+        postalCode: record.postalCode || "",
+        address: record.address || "",
+        maker: record.maker || "",
+        model: record.model || "",
+        serial: record.serial || "",
+        purchaseSite: record.purchaseSite || "",
+        purchaseDate: record.purchaseDate || "",
+        warrantyPeriod: record.warrantyPeriod || "",
+        warrantyPlan: record.warrantyPlan || "",
+        warrantyEndDate: record.warrantyEndDate || "",
+      },
+    };
+  } catch (error) {
+    console.error("Database search error:", error);
+    throw new Error(`データベースの検索に失敗しました: ${error instanceof Error ? error.message : "Unknown error"}`);
+  }
 }
 
 /**
@@ -107,8 +69,8 @@ export async function checkExistingRegistration(
     return { exists: false };
   }
 
-  const existingName = existing.record[FIELD_CODES.fullName]?.value || "";
-  const existingPhone = existing.record[FIELD_CODES.phone]?.value || "";
+  const existingName = existing.record.fullName || "";
+  const existingPhone = existing.record.phone || "";
 
   // 氏名または電話番号が既に入力されている場合は登録済みとみなす
   if (existingName || existingPhone) {
@@ -124,74 +86,54 @@ export async function checkExistingRegistration(
 export async function createKintoneRecord(
   payload: WarrantyRegistrationPayload,
 ) {
-  const domain = process.env.KINTONE_DOMAIN;
-  const appId = process.env.KINTONE_APP_ID;
-  const apiToken = process.env.KINTONE_API_TOKEN;
-  const mockMode = process.env.KINTONE_MOCK_MODE === "true";
-
-  // モックモードまたは設定が未完了の場合は、モックレスポンスを返す
-  if (mockMode || !domain || !appId || !apiToken) {
-    if (!mockMode && (!domain || !appId || !apiToken)) {
-      console.log(
-        "⚠️ Kintoneの設定が未完了のため、モックモードで動作しています。",
-      );
-      console.log("本番環境では .env.local に KINTONE_DOMAIN, KINTONE_APP_ID, KINTONE_API_TOKEN を設定してください。",
-      );
-    } else {
-      console.log("✅ Kintoneモックモード: 登録データ", payload);
-    }
-    // モックレスポンス（実際のkintoneと同じ形式）
-    return {
-      id: `mock_${Date.now()}`,
-      revision: "1",
-    };
-  }
-
-  // 管理番号で既存レコードを検索
-  const existing = await findRecordByManagementId(payload.managementId);
-
-  if (existing) {
-    const existingName = existing.record[FIELD_CODES.fullName]?.value || "";
-    const existingPhone = existing.record[FIELD_CODES.phone]?.value || "";
-
-    // 氏名または電話番号が既に入力されている場合は登録済み
-    if (existingName || existingPhone) {
-      throw new Error("この管理番号は既に登録済みです。");
-    }
-
-    // レコードは存在するが情報が未入力の場合は更新
-    const endpoint = `https://${domain}/k/v1/record.json`;
-    const body = {
-      app: appId,
-      id: existing.id,
-      record: {
-        [FIELD_CODES.phone]: { value: payload.phone },
-        [FIELD_CODES.fullName]: { value: payload.fullName },
-        [FIELD_CODES.fullNameFurigana]: { value: payload.furigana },
-        [FIELD_CODES.postalCode]: { value: payload.postalCode },
-        [FIELD_CODES.address]: { value: payload.address },
-      },
-    };
-
-    const response = await fetch(endpoint, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Cybozu-API-Token": apiToken,
-      },
-      body: JSON.stringify(body),
+  try {
+    // 管理番号で既存レコードを検索
+    const existing = await prisma.warrantyRegistration.findUnique({
+      where: { managementId: payload.managementId },
     });
 
-    if (!response.ok) {
-      const message = await response.text();
-      throw new Error(`kintoneの更新に失敗しました: ${message}`);
+    if (existing) {
+      const existingName = existing.fullName || "";
+      const existingPhone = existing.phone || "";
+
+      // 氏名または電話番号が既に入力されている場合は登録済み
+      if (existingName || existingPhone) {
+        throw new Error("この管理番号は既に登録済みです。");
+      }
+
+      // レコードは存在するが情報が未入力の場合は更新
+      const updated = await prisma.warrantyRegistration.update({
+        where: { id: existing.id },
+        data: {
+          phone: payload.phone,
+          fullName: payload.fullName,
+          furigana: payload.furigana,
+          postalCode: payload.postalCode,
+          address: payload.address,
+          warrantyPlan: payload.warrantyPlan,
+          reviewPledge: payload.reviewPledge,
+          termsAgreed: payload.termsAgreed,
+        },
+      });
+
+      return {
+        id: updated.id,
+        revision: "1",
+      };
     }
 
-    return response.json();
+    // 管理番号が見つからない場合はエラー
+    throw new Error("該当の管理番号は見当たりません。");
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("既に登録済み")) {
+      throw error;
+    }
+    if (error instanceof Error && error.message.includes("該当の管理番号は見当たりません")) {
+      throw error;
+    }
+    console.error("Database create/update error:", error);
+    throw new Error(`データベースの登録に失敗しました: ${error instanceof Error ? error.message : "Unknown error"}`);
   }
-
-  // 管理番号が見つからない場合はエラー
-  throw new Error("該当の管理番号は見当たりません。");
 }
 
 /**
@@ -206,68 +148,64 @@ export async function getWarrantyStatus(
   message?: string;
   needsRegistration?: boolean;
 }> {
-  const domain = process.env.KINTONE_DOMAIN;
-  const appId = process.env.KINTONE_APP_ID;
-  const apiToken = process.env.KINTONE_API_TOKEN;
-  const mockMode = process.env.KINTONE_MOCK_MODE === "true";
+  try {
+    // 管理番号で検索
+    const record = await findRecordByManagementId(managementId);
 
-  // モックモード
-  if (mockMode || !domain || !appId || !apiToken) {
+    if (!record) {
+      return {
+        success: false,
+        message: "該当の管理番号は見当たりません。",
+      };
+    }
+
+    const phone = record.record.phone || "";
+    const fullName = record.record.fullName || "";
+
+    // 氏名や電話番号が未入力の場合は登録を促す
+    if (!fullName || !phone) {
+      return {
+        success: false,
+        message: "この管理番号はまだ登録が完了していません。保証登録フォームから登録をお願いします。",
+        needsRegistration: true,
+      };
+    }
+
+    // 電話番号の下4桁を確認（ハイフンを除去して比較）
+    const phoneDigits = phone.replace(/\D/g, "");
+    const phoneLast4Digits = phoneDigits.slice(-4);
+    if (phoneLast4Digits !== phoneLast4) {
+      return {
+        success: false,
+        message: "管理番号と電話番号が一致しません。",
+      };
+    }
+
+    // 認証成功 - 登録情報を返す
+    return {
+      success: true,
+      data: {
+        managementId: record.record.managementId || "",
+        fullName: fullName,
+        phone: phone,
+        postalCode: record.record.postalCode || "",
+        address: record.record.address || "",
+        maker: record.record.maker || "",
+        model: record.record.model || "",
+        serial: record.record.serial || "",
+        purchaseSite: record.record.purchaseSite || "",
+        purchaseDate: record.record.purchaseDate || "",
+        warrantyPeriod: record.record.warrantyPeriod || "",
+        warrantyPlan: record.record.warrantyPlan || "",
+        warrantyEndDate: record.record.warrantyEndDate || "",
+      },
+    };
+  } catch (error) {
+    console.error("Database status check error:", error);
     return {
       success: false,
-      message: "システム設定が完了していません",
+      message: "システムエラーが発生しました。時間をおいて再度お試しください。",
     };
   }
-
-  // 管理番号で検索
-  const record = await findRecordByManagementId(managementId);
-
-  if (!record) {
-    return {
-      success: false,
-      message: "該当の管理番号は見当たりません。",
-    };
-  }
-
-  const phone = record.record[FIELD_CODES.phone]?.value || "";
-  const fullName = record.record[FIELD_CODES.fullName]?.value || "";
-
-  // 氏名や電話番号が未入力の場合は登録を促す
-  if (!fullName || !phone) {
-    return {
-      success: false,
-      message: "この管理番号はまだ登録が完了していません。保証登録フォームから登録をお願いします。",
-      needsRegistration: true,
-    };
-  }
-
-  // 電話番号の下4桁を確認
-  const phoneLast4Digits = phone.slice(-4);
-  if (phoneLast4Digits !== phoneLast4) {
-    return {
-      success: false,
-      message: "管理番号と電話番号が一致しません。",
-    };
-  }
-
-  // 認証成功 - 登録情報を返す
-  return {
-    success: true,
-    data: {
-      managementId: record.record[FIELD_CODES.managementId]?.value || "",
-      fullName: fullName,
-      phone: phone,
-      postalCode: record.record[FIELD_CODES.postalCode]?.value || "",
-      address: record.record[FIELD_CODES.address]?.value || "",
-      maker: record.record[FIELD_CODES.maker]?.value || "",
-      model: record.record[FIELD_CODES.model]?.value || "",
-      serial: record.record[FIELD_CODES.serial]?.value || "",
-      purchaseSite: record.record[FIELD_CODES.purchaseSite]?.value || "",
-      purchaseDate: record.record[FIELD_CODES.purchaseDate]?.value || "",
-      warrantyPeriod: record.record[FIELD_CODES.warrantyPeriod]?.value || "",
-      warrantyPlan: record.record[FIELD_CODES.warrantyPlan]?.value || "",
-      warrantyEndDate: record.record[FIELD_CODES.warrantyEndDate]?.value || "",
-    },
-  };
 }
 

@@ -56,13 +56,8 @@ export async function POST(request: Request) {
     }
 
     // 既に登録済みかチェック
-    const FIELD_CODES = {
-      phone: "文字列__1行__4",
-      fullName: "name_1",
-    } as const;
-    
-    const existingPhone = record.record[FIELD_CODES.phone]?.value || "";
-    const existingName = record.record[FIELD_CODES.fullName]?.value || "";
+    const existingPhone = record.record.phone || "";
+    const existingName = record.record.fullName || "";
 
     // 既に登録済みの場合はエラー
     if (existingName || existingPhone) {

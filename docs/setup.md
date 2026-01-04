@@ -22,3 +22,4 @@ KINTONE_API_TOKEN=xxxxxxxxxxxxxxxxxxxx
 - 口コミ投稿の有無などのフィールドが無い場合は、新規フィールドを作成し `FIELD_CODES` と揃えてください。
 - 本番運用時は必ずHTTPSで配信し、APIトークンはサーバーサイドのみで扱ってください。
 
+

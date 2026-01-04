@@ -1,0 +1,36 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model WarrantyRegistration {
+  id            String   @id @default(cuid())
+  managementId  String   @unique // 管理番号（URC1234567形式）
+  phone         String?  // 電話番号
+  fullName      String?  // 氏名（漢字）
+  furigana      String?  // フリガナ
+  postalCode    String?  // 郵便番号
+  address       String?  // 住所
+  maker         String?  // メーカー
+  model         String?  // モデル
+  serial        String?  // シリアル番号
+  purchaseSite  String?  // 購入サイト
+  purchaseDate  String?  // 購入日
+  warrantyPeriod Int?    // 保証期間（数値）
+  warrantyPlan  String?  // 保証プラン（standard, campaign, m, s）
+  warrantyEndDate String? // 保証終了日
+  reviewPledge   Boolean  @default(false) // 口コミ投稿の意思表示
+  termsAgreed    Boolean  @default(false) // 規約への同意
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([managementId])
+}
